@@ -91,12 +91,15 @@
     $$("[data-count-to]").forEach(function (el) {
       var to = parseFloat(el.getAttribute("data-count-to"));
       if (!(to > 2)) return;
-      var t0 = performance.now(), dur = 1400;
-      (function tick(now) {
-        var k = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - k, 3);
+      var t0 = performance.now(), dur = 1400, done = false;
+      (function tick() {
+        if (done) return;
+        var k = Math.max(0, Math.min(1, (performance.now() - t0) / dur)), e = 1 - Math.pow(1 - k, 3);
         el.textContent = Math.round(to * e);
-        if (k < 1) requestAnimationFrame(tick); else el.textContent = to;
-      })(t0);
+        if (k < 1) requestAnimationFrame(tick); else { done = true; el.textContent = to; }
+      })();
+      // Red de seguridad: el número final siempre queda puesto
+      setTimeout(function () { done = true; el.textContent = to; }, dur + 400);
     });
   }
 
